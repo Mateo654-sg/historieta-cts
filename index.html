@@ -1,0 +1,690 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>La Selección — Historieta CTS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,400;0,700;1,400&display=swap">
+
+<style>
+:root {
+  --bg: #FFF8E7;
+  --panel-bg: #FFFDF5;
+  --border: #0D0D0D;
+  --caption-bg: #FFE033;
+  --caption-fg: #0D0D0D;
+  --speech-bg: #FFFFFF;
+  --sfx-1: #E02828;
+  --sfx-2: #1C4FC0;
+  --sfx-3: #1A7A1A;
+  --villain: #C01010;
+  --villain-bg: #FFE8E8;
+  --hero-bg: #E8F0FF;
+  --green-bg: #E8F5E8;
+  --yellow-bg: #FFFBDC;
+  --fg: #0D0D0D;
+  --fg-muted: #3A3A3A;
+  --halftone: rgba(0,0,0,0.055);
+  --ui-bg: rgba(255,248,231,0.92);
+  --ui-border: #0D0D0D;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1A1714; --panel-bg: #211E1A; --border: #E0D8C8;
+    --caption-bg: #8A7200; --caption-fg: #FFF8DC;
+    --speech-bg: #2A2620; --sfx-1: #FF5252; --sfx-2: #6B9FFF; --sfx-3: #52C852;
+    --villain-bg: #2D1515; --hero-bg: #151D30; --green-bg: #152015; --yellow-bg: #201C00;
+    --fg: #EAE5DA; --fg-muted: #B0A898; --halftone: rgba(255,255,255,0.04);
+    --ui-bg: rgba(26,23,20,0.92);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1A1714; --panel-bg: #211E1A; --border: #E0D8C8;
+  --caption-bg: #8A7200; --caption-fg: #FFF8DC;
+  --speech-bg: #2A2620; --sfx-1: #FF5252; --sfx-2: #6B9FFF; --sfx-3: #52C852;
+  --villain-bg: #2D1515; --hero-bg: #151D30; --green-bg: #152015; --yellow-bg: #201C00;
+  --fg: #EAE5DA; --fg-muted: #B0A898; --halftone: rgba(255,255,255,0.04);
+  --ui-bg: rgba(26,23,20,0.92);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  color: var(--fg);
+  touch-action: pan-y;
+}
+
+/* ── Halftone ──────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--halftone) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Progress bar ──────────────────────────────────── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: var(--border);
+  z-index: 100;
+  transform-origin: left;
+  transition: transform .35s ease;
+}
+
+/* ── Slides container ──────────────────────────────── */
+#slides {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(48px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(64px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+  transform: translateX(60px);
+  overflow-y: auto;
+}
+.slide.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+.slide.exit {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.slide-inner {
+  width: 100%;
+  max-width: 820px;
+}
+
+/* ── UI controls ───────────────────────────────────── */
+#controls {
+  position: fixed;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 100;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.ctrl-btn {
+  background: var(--ui-bg);
+  border: 3px solid var(--border);
+  color: var(--fg);
+  font-family: 'Bangers', sans-serif;
+  font-size: 18px;
+  letter-spacing: .06em;
+  padding: 6px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform .1s;
+  user-select: none;
+}
+.ctrl-btn:active { transform: scale(.96); }
+.ctrl-btn:disabled { opacity: .35; cursor: default; }
+
+#slide-counter {
+  background: var(--ui-bg);
+  border: 3px solid var(--border);
+  font-family: 'Bangers', sans-serif;
+  font-size: 16px;
+  letter-spacing: .08em;
+  padding: 6px 16px;
+  border-radius: 3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 72px;
+  text-align: center;
+  color: var(--fg);
+}
+
+#fullscreen-btn {
+  background: var(--ui-bg);
+  border: 3px solid var(--border);
+  color: var(--fg);
+  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  user-select: none;
+}
+
+/* ── Comic components ──────────────────────────────── */
+.splash-slide {
+  background: var(--sfx-1);
+  border: 5px solid var(--border);
+  border-radius: 4px;
+  padding: 40px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.splash-slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 12px, rgba(0,0,0,0.08) 12px, rgba(0,0,0,0.08) 14px);
+}
+.splash-inner { position: relative; z-index: 1; }
+.splash-tag { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.3); display: inline-block; padding: 4px 12px; border-radius: 2px; margin-bottom: 14px; font-weight: 700; }
+.splash-h1 { font-family: 'Bangers', sans-serif; font-size: clamp(56px, 14vw, 110px); color: #FFF; letter-spacing: .04em; text-shadow: 6px 6px 0 #000, -2px -2px 0 #000; line-height: 1; margin-bottom: 10px; }
+.splash-sub { font-family: 'Bangers', sans-serif; font-size: clamp(18px, 4vw, 30px); color: var(--caption-bg); letter-spacing: .06em; text-shadow: 2px 2px 0 #000; }
+.splash-credits { margin-top: 18px; color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 700; letter-spacing: .06em; }
+
+.chapter-banner {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 28px; border: 5px solid var(--border); border-radius: 4px;
+  font-family: 'Bangers', sans-serif; font-size: clamp(28px, 7vw, 52px);
+  letter-spacing: .06em;
+}
+.ch-num { font-size: .5em; background: rgba(0,0,0,0.25); padding: 3px 12px; border-radius: 2px; flex-shrink: 0; }
+.ch1 { background: #E02828; color: #fff; }
+.ch2 { background: #1C4FC0; color: #fff; }
+.ch3 { background: #9B27AF; color: #fff; }
+.ch4 { background: #E67A00; color: #fff; }
+.ch5 { background: #1A7A1A; color: #fff; }
+
+.panels { display: grid; gap: 6px; }
+.p2 { grid-template-columns: 1fr 1fr; }
+.p3 { grid-template-columns: 1fr 1fr 1fr; }
+.p12 { grid-template-columns: 1fr 2fr; }
+.p21 { grid-template-columns: 2fr 1fr; }
+@media (max-width: 540px) { .p2,.p3,.p12,.p21 { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--panel-bg); border: 4px solid var(--border); border-radius: 3px;
+  padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; min-height: 120px;
+}
+.p-villain { background: var(--villain-bg); }
+.p-hero { background: var(--hero-bg); }
+.p-green { background: var(--green-bg); }
+.p-yellow { background: var(--yellow-bg); }
+.p-dark { background: #111; border-color: #555; }
+
+.caption { background: var(--caption-bg); color: var(--caption-fg); font-weight: 700; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 3px 9px; display: inline-block; border: 2px solid var(--border); border-radius: 2px; align-self: flex-start; }
+.c-blue { background: var(--sfx-2); color: #fff; }
+.c-red { background: var(--sfx-1); color: #fff; }
+.c-green { background: var(--sfx-3); color: #fff; }
+
+.char { font-size: 48px; line-height: 1; }
+.char-sm { font-size: 34px; }
+.char-lg { font-size: 68px; }
+.char-row { display: flex; align-items: flex-end; gap: 10px; }
+
+.speech { background: var(--speech-bg); border: 3px solid var(--border); border-radius: 16px; padding: 9px 13px; font-weight: 700; font-size: 13px; position: relative; color: var(--fg); max-width: 280px; }
+.speech::after { content: ''; position: absolute; bottom: -13px; left: 16px; border: 6px solid transparent; border-top-color: var(--border); }
+.speech::before { content: ''; position: absolute; bottom: -8px; left: 18px; border: 4px solid transparent; border-top-color: var(--speech-bg); z-index: 1; }
+.speech.r::after { left: auto; right: 16px; }
+.speech.r::before { left: auto; right: 18px; }
+.s-villain { background: #FFEEEE; border-color: var(--villain); color: #1A0000; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .s-villain { background: #2D1515; color: #FFD0D0; } }
+:root[data-theme="dark"] .s-villain { background: #2D1515; color: #FFD0D0; }
+
+.thought { background: var(--speech-bg); border: 3px solid var(--border); border-radius: 24px; padding: 9px 13px; font-weight: 700; font-size: 13px; font-style: italic; color: var(--fg-muted); max-width: 260px; position: relative; }
+.thought::after { content: '○ ○ ○'; position: absolute; bottom: -22px; left: 14px; font-size: 10px; color: var(--border); letter-spacing: 2px; }
+
+.sfx { font-family: 'Bangers', sans-serif; font-size: clamp(28px, 7vw, 52px); letter-spacing: .04em; line-height: 1; align-self: center; text-align: center; }
+.sx-red { color: var(--sfx-1); text-shadow: 3px 3px 0 #000; }
+.sx-blue { color: var(--sfx-2); text-shadow: 3px 3px 0 #000; }
+.sx-green { color: var(--sfx-3); text-shadow: 3px 3px 0 #000; }
+.sx-yellow { color: #C08000; text-shadow: 2px 2px 0 #000; }
+
+.narr { background: #0D0D0D; color: #FFE033; font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 3px; }
+.narr-w { background: #0D0D0D; color: #fff; font-weight: 700; font-size: 12px; padding: 6px 10px; border-radius: 3px; }
+
+.data-box { border: 3px solid var(--border); border-radius: 4px; padding: 12px 14px; background: var(--panel-bg); }
+.data-num { font-family: 'Bangers', sans-serif; font-size: clamp(30px, 6vw, 48px); line-height: 1; }
+.data-lbl { font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: .07em; }
+
+.bias-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 2px solid var(--border); }
+.bias-row:last-child { border-bottom: none; }
+.badge { font-family: 'Bangers', sans-serif; font-size: 11px; letter-spacing: .1em; padding: 3px 8px; border: 2px solid var(--border); border-radius: 2px; flex-shrink: 0; margin-top: 2px; }
+.bias-t { font-weight: 700; font-size: 14px; display: block; margin-bottom: 2px; }
+.bias-d { font-size: 12px; color: var(--fg-muted); }
+
+.law-card { border: 3px solid var(--border); border-radius: 4px; overflow: hidden; }
+.law-h { font-family: 'Bangers', sans-serif; font-size: 17px; letter-spacing: .05em; padding: 7px 12px; background: var(--border); color: var(--bg); }
+.law-b { padding: 10px 12px; font-size: 12px; line-height: 1.5; }
+
+.conc-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 2px dashed var(--border); }
+.conc-row:last-child { border-bottom: none; }
+.conc-n { font-family: 'Bangers', sans-serif; font-size: 30px; color: var(--sfx-3); text-shadow: 2px 2px 0 var(--border); line-height: 1; flex-shrink: 0; width: 34px; }
+.conc-t { font-size: 13px; font-weight: 700; }
+.conc-s { font-size: 11px; color: var(--fg-muted); margin-top: 2px; }
+
+.end-panel {
+  background: var(--sfx-3); border: 5px solid var(--border); border-radius: 4px;
+  padding: 48px 28px; text-align: center; position: relative; overflow: hidden;
+}
+.end-panel::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 14px, rgba(0,0,0,0.06) 14px, rgba(0,0,0,0.06) 16px); }
+.end-inner { position: relative; z-index: 1; }
+.end-title { font-family: 'Bangers', sans-serif; font-size: clamp(64px, 18vw, 130px); color: #fff; text-shadow: 6px 6px 0 #000; letter-spacing: .08em; line-height: 1; }
+.end-emoji { font-size: 40px; margin-top: 16px; }
+.end-credits { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: .08em; font-weight: 700; text-transform: uppercase; }
+
+.vgap { margin-top: 10px; }
+.p { font-size: 13px; color: var(--fg-muted); }
+.bold { font-weight: 700; color: var(--fg); }
+.red { color: var(--sfx-1); }
+.blue { color: var(--sfx-2); }
+
+/* Fullscreen hide controls hint */
+:fullscreen #controls, :-webkit-full-screen #controls { opacity: 0; transition: opacity .5s; }
+:fullscreen:hover #controls, :-webkit-full-screen:hover #controls { opacity: 1; }
+</style>
+
+<!-- Progress -->
+<div id="progress-bar"></div>
+
+<!-- Controls -->
+<div id="controls">
+  <button class="ctrl-btn" id="prev-btn" onclick="go(-1)">◀ ATRÁS</button>
+  <div id="slide-counter">1 / 17</div>
+  <button class="ctrl-btn" id="next-btn" onclick="go(1)">SIGUIENTE ▶</button>
+  <button id="fullscreen-btn" onclick="toggleFS()" title="Pantalla completa">⛶</button>
+</div>
+
+<!-- ══ SLIDES ══════════════════════════════════════════ -->
+<div id="slides">
+
+  <!-- 1. SPLASH -->
+  <div class="slide active">
+    <div class="slide-inner">
+      <div class="splash-slide">
+        <div class="splash-inner">
+          <div class="splash-tag">Ciencia · Tecnología · Sociedad — Bitácora</div>
+          <div class="splash-h1">LA SELECCIÓN</div>
+          <div class="splash-sub">¿Quién decide quién consigue el trabajo?</div>
+          <div class="splash-credits">Mateo Rico · 2026 · Bitácora CTS en formato historieta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. PRÓLOGO -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="panel p-yellow" style="border:4px solid var(--border);border-radius:4px;">
+        <div class="caption">Prólogo</div>
+        <div class="narr">Cada año, millones de personas buscan empleo. Hoy, antes de que un humano lea su hoja de vida... ya decidió una máquina.</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:44px;padding:16px 0;">
+          <span>👩‍💼</span>
+          <span style="font-family:Bangers,sans-serif;font-size:30px;color:var(--sfx-1);">→→→</span>
+          <span>🤖</span>
+          <span style="font-family:Bangers,sans-serif;font-size:30px;color:var(--sfx-1);">→→→</span>
+          <span>🏢</span>
+        </div>
+        <div class="narr-w">Esto es una historia sobre poder, algoritmos y las personas que quedan atrapadas entre ambos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CAP 1 BANNER + Ana -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chapter-banner ch1"><span class="ch-num">CAP. 1</span> El Currículum</div>
+      <div class="panels p12" style="gap:6px;">
+        <div class="panel">
+          <div class="caption">Ciudad, 8:47 AM</div>
+          <div class="char" style="font-size:56px;text-align:center;">👩‍🎓</div>
+          <div class="thought">Años de estudio, experiencia real... este trabajo es mío.</div>
+        </div>
+        <div class="panel">
+          <div class="caption">Mientras tanto...</div>
+          <div class="char-row">
+            <div class="char">🖥️</div>
+            <div class="speech s-villain">CURRÍCULUM RECIBIDO.<br>ANALIZANDO...<br>⬛⬛⬛⬜⬜ 60%</div>
+          </div>
+          <div class="vgap"><p>El sistema ATS (Applicant Tracking System) ya está trabajando. <span class="bold">Ana no lo sabe.</span></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. STATS + SCOT -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="panels p3" style="gap:6px;">
+        <div class="panel">
+          <div class="data-box">
+            <div class="data-num red">75%</div>
+            <div class="data-lbl">de grandes empresas usan IA para filtrar CVs antes de que los vea un humano</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="data-box">
+            <div class="data-num blue">6 seg</div>
+            <div class="data-lbl">tiempo promedio que dedica un humano a leer un CV, si pasa el filtro</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="data-box">
+            <div class="data-num" style="color:var(--sfx-3);">250:1</div>
+            <div class="data-lbl">candidatos por vacante popular. La IA elige a quién ve el reclutador.</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="border:4px solid var(--border);">
+        <div class="caption c-blue">El sistema CTS dice:</div>
+        <div class="narr">Bijker, Hughes y Pinch (1987) lo llamaron <strong>Construcción Social de la Tecnología (SCOT)</strong>: los sistemas no son neutrales. Son diseñados por personas con intereses, valores y puntos ciegos. Un algoritmo de selección no es objetivo — refleja los criterios de quien lo programó.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. CAP 2 BANNER + Amazon intro -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chapter-banner ch2"><span class="ch-num">CAP. 2</span> El Caso Amazon</div>
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel p-villain">
+          <div class="caption c-red">Seattle, 2014–2018</div>
+          <div class="char char-lg" style="text-align:center;">📦</div>
+          <div class="narr-w" style="background:#8B0000;">Amazon construye una IA para seleccionar talento. La alimentan con 10 años de CVs exitosos.</div>
+        </div>
+        <div class="panel p-villain">
+          <div class="caption c-red">El problema</div>
+          <div style="font-size:14px;font-weight:700;">El 90% de los empleados contratados en esa década eran <span class="red">hombres</span>.</div>
+          <div class="speech s-villain vgap">PENALIZANDO:<br>• "Mujeres" en el CV<br>• Egresadas de universidades femeninas<br>• Palabras asociadas a género</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Amazon resultado + Reuters -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel" style="align-items:center;justify-content:center;">
+          <div class="sfx sx-red">¡SESGO!</div>
+          <p style="margin-top:8px;text-align:center;">La IA aprendió que "los mejores" eran hombres... porque los datos históricos decían eso. No porque fuera verdad.</p>
+        </div>
+        <div class="panel">
+          <div class="caption">Reuters, octubre 2018</div>
+          <div style="font-size:14px;font-weight:700;line-height:1.4;">"Amazon scraps secret AI recruiting tool that showed bias against women"</div>
+          <p class="vgap">Cancelaron el proyecto. Pero, ¿cuántas candidatas ya habían sido rechazadas?</p>
+        </div>
+      </div>
+      <div class="panel" style="border:4px solid var(--border);">
+        <div class="caption c-red">Cathy O'Neil — Weapons of Math Destruction (2016):</div>
+        <div class="narr">Un algoritmo dañino tiene tres características: es <strong>opaco</strong> (nadie sabe cómo decide), opera a <strong>gran escala</strong> (afecta a millones) y causa <strong>daño real</strong>. Amazon cumplía las tres. Y no fue el único.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. CAP 3 BANNER + HireVue -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chapter-banner ch3"><span class="ch-num">CAP. 3</span> La Cámara que Juzga</div>
+      <div class="panels p12" style="gap:6px;">
+        <div class="panel p-dark">
+          <div class="caption c-blue">HireVue, 2014–2024</div>
+          <div class="char char-lg" style="text-align:center;">📹</div>
+          <div style="color:#FFE033;font-family:'Bangers',sans-serif;font-size:18px;letter-spacing:.06em;text-align:center;margin-top:6px;">● GRABANDO</div>
+        </div>
+        <div class="panel">
+          <div class="caption">La propuesta</div>
+          <div class="char-row">
+            <div class="char char-sm">🤖</div>
+            <div class="speech s-villain">Analizo tus micro-expresiones, movimientos oculares, tono de voz y vocabulario. En minutos te digo si eres el candidato ideal.</div>
+          </div>
+          <p class="vgap" style="font-size:12px;">Más de 100 empresas Fortune 500 usaron esta tecnología. Millones de entrevistas evaluadas por algoritmo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. HireVue consecuencias + Zuboff -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="panels p3" style="gap:6px;">
+        <div class="panel p-villain">
+          <div class="narr-w" style="background:#4A004A;font-size:12px;">Investigadores del MIT demostraron que sistemas similares fallaban más con personas de piel oscura y mujeres.</div>
+        </div>
+        <div class="panel">
+          <div class="sfx sx-blue" style="font-size:22px;">¿PSEUDO-<br>CIENCIA?</div>
+          <p style="font-size:12px;margin-top:6px;">No hay evidencia de que las micro-expresiones revelen competencias laborales. Es <span class="bold">fisiognomía digital</span>.</p>
+        </div>
+        <div class="panel p-hero">
+          <div class="caption c-blue">2021</div>
+          <div class="char" style="text-align:center;font-size:36px;">📢</div>
+          <div style="font-size:12px;font-weight:700;">HireVue abandona el análisis facial tras protestas de organizaciones de derechos civiles.</div>
+        </div>
+      </div>
+      <div class="panel" style="border:4px solid var(--border);">
+        <div class="caption">Shoshana Zuboff — La era del capitalismo de vigilancia (2019):</div>
+        <div class="narr">La experiencia humana se convierte en <strong>materia prima</strong>. Tus gestos, pausas, tono de voz en una entrevista: datos que se extraen, procesan y venden. El candidato no es el cliente — es el producto.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. CAP 4 BANNER + bias intro -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chapter-banner ch4"><span class="ch-num">CAP. 4</span> Los Tipos de Sesgo</div>
+      <div class="panel p-yellow" style="border:4px solid var(--border);">
+        <div class="caption">El mapa del problema</div>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+          <div class="char">🔍</div>
+          <div style="font-weight:700;font-size:14px;flex:1;min-width:200px;">Los sesgos no aparecen solos. Están integrados en cada capa del sistema. Ruha Benjamin (2019) los llama el <span class="red">"New Jim Code"</span>: racismo invisible codificado digitalmente.</div>
+        </div>
+        <div class="panels p2" style="gap:6px;">
+          <div class="bias-row" style="border:3px solid var(--border);border-radius:3px;padding:10px;margin:0;background:var(--panel-bg);">
+            <div class="badge" style="background:var(--sfx-1);color:#fff;border-color:var(--sfx-1);">DATOS</div>
+            <div><span class="bias-t">Sesgo histórico</span><span class="bias-d">Si históricamente contrataste a cierto perfil, el algoritmo aprende que ese perfil es "el mejor".</span></div>
+          </div>
+          <div class="bias-row" style="border:3px solid var(--border);border-radius:3px;padding:10px;margin:0;background:var(--panel-bg);">
+            <div class="badge" style="background:var(--sfx-2);color:#fff;border-color:var(--sfx-2);">DISEÑO</div>
+            <div><span class="bias-t">Sesgo de diseño</span><span class="bias-d">Las variables elegidas para evaluar reflejan los valores de quien diseña el sistema.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Bias mapa completo -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:6px;">
+      <div class="panels p2" style="gap:6px;">
+        <div class="bias-row" style="border:4px solid var(--border);border-radius:3px;padding:14px;margin:0;background:var(--panel-bg);display:flex;gap:10px;align-items:flex-start;">
+          <div class="badge" style="background:var(--sfx-3);color:#fff;border-color:var(--sfx-3);">MEDICIÓN</div>
+          <div><span class="bias-t">Sesgo de medición</span><span class="bias-d">Los tests estandarizados favorecen a quienes tuvieron acceso a preparación específica. La "objetividad" puede ser inequidad disfrazada.</span></div>
+        </div>
+        <div class="bias-row" style="border:4px solid var(--border);border-radius:3px;padding:14px;margin:0;background:var(--panel-bg);display:flex;gap:10px;align-items:flex-start;">
+          <div class="badge" style="background:#7A00AA;color:#fff;border-color:#7A00AA;">FEEDBACK</div>
+          <div><span class="bias-t">Sesgo de retroalimentación</span><span class="bias-d">La IA contrata un perfil → ese perfil "rinde bien" → la IA contrata más de lo mismo. Círculo vicioso.</span></div>
+        </div>
+      </div>
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel" style="align-items:center;justify-content:center;">
+          <div class="sfx sx-red" style="font-size:28px;">INVISIBLE<br>≠<br>NEUTRAL</div>
+        </div>
+        <div class="panel">
+          <div class="char-row">
+            <div class="char char-sm">👩‍🔬</div>
+            <div class="thought">Un algoritmo opaco que discrimina es más peligroso que un humano que discrimina. Al menos al humano lo puedes demandar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. CAP 5 BANNER + reguladores -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chapter-banner ch5"><span class="ch-num">CAP. 5</span> El Contraataque</div>
+      <div class="panel p-hero" style="border:4px solid var(--border);">
+        <div class="caption c-blue">Los reguladores entran en escena</div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div class="char char-lg">⚖️</div>
+          <div class="speech" style="max-width:100%;">¡Basta! Las herramientas de IA en contratación son <strong>alto riesgo</strong>. Deben auditarse, explicarse y controlarse.</div>
+        </div>
+      </div>
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel">
+          <div class="law-card">
+            <div class="law-h" style="background:var(--sfx-2);">🇪🇺 EU AI ACT — 2024</div>
+            <div class="law-b"><strong>Las IA de contratación son "alto riesgo".</strong><br>Requieren: documentación técnica, auditorías, supervisión humana, transparencia y derecho a impugnar decisiones.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="law-card">
+            <div class="law-h" style="background:#C05000;">🗽 NYC Local Law 144 — 2023</div>
+            <div class="law-b"><strong>Primera ley del mundo en exigir auditorías externas anuales</strong> de sesgo para herramientas de contratación automatizadas. Multas hasta $1,500/día.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Más leyes + LATAM -->
+  <div class="slide">
+    <div class="slide-inner" style="display:flex;flex-direction:column;gap:6px;">
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel">
+          <div class="law-card">
+            <div class="law-h" style="background:#7A3800;">🌽 Illinois AIVAA — 2019</div>
+            <div class="law-b">Primera ley sobre entrevistas de video con IA. <strong>Prohíbe analizar video sin consentimiento explícito</strong> y exige explicar cómo funciona el sistema.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="law-card">
+            <div class="law-h" style="background:#1A5A1A;">🇪🇺 GDPR — Artículo 22</div>
+            <div class="law-b"><strong>Derecho a no ser objeto de decisiones automatizadas</strong> que produzcan efectos jurídicos significativos. El candidato puede exigir revisión humana.</div>
+          </div>
+        </div>
+      </div>
+      <div class="panels p2" style="gap:6px;">
+        <div class="panel p-yellow">
+          <div class="sfx sx-yellow" style="font-size:22px;">¿Y en<br>Latinoamérica?</div>
+        </div>
+        <div class="panel">
+          <div class="narr">Sin regulación específica. La CEPAL (2024) advierte: la brecha digital amplifica el impacto negativo. Quien no tiene acceso a tecnología ni recursos legales queda doblemente excluido.</div>
+          <div class="char" style="margin-top:8px;">🌎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. Conclusiones -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="panel p-green" style="border:4px solid var(--border);">
+        <div class="caption c-green">Lo que necesitamos — postura comunitaria/crítica</div>
+        <div class="char-row" style="margin-bottom:12px;">
+          <div class="char">✊</div>
+          <div class="speech" style="max-width:100%;">La tecnología debe servir a la gente, no al revés. No se trata de rechazar la IA — se trata de controlarla.</div>
+        </div>
+        <div>
+          <div class="conc-row"><div class="conc-n">1</div><div><div class="conc-t">Auditorías independientes obligatorias</div><div class="conc-s">No puede haber algoritmos de contratación sin revisión externa de sesgos. Modelo NYC Local Law 144.</div></div></div>
+          <div class="conc-row"><div class="conc-n">2</div><div><div class="conc-t">Transparencia con los candidatos</div><div class="conc-s">El candidato tiene derecho a saber si una IA participó en su evaluación y con qué criterios.</div></div></div>
+          <div class="conc-row"><div class="conc-n">3</div><div><div class="conc-t">Siempre revisión humana</div><div class="conc-s">La IA puede asistir, nunca decidir sola. Una persona debe revisar los rechazos automatizados.</div></div></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. FIN -->
+  <div class="slide">
+    <div class="slide-inner">
+      <div class="end-panel">
+        <div class="end-inner">
+          <div class="end-title">FIN</div>
+          <div class="end-emoji">🤖 ⚖️ ✊</div>
+          <div class="end-credits">
+            Bitácora CTS · IA en Selección Laboral · Mateo Rico · 2026<br>
+            Fuentes: O'Neil (2016) · Benjamin (2019) · Zuboff (2019) · Eubanks (2018)<br>
+            Reuters (2018) · MIT Tech Review (2021) · EU AI Act (2024) · NYC Local Law 144 (2023)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slide-counter');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const bar = document.getElementById('progress-bar');
+const total = slides.length;
+let cur = 0;
+
+function update() {
+  counter.textContent = `${cur + 1} / ${total}`;
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === total - 1;
+  bar.style.transform = `scaleX(${(cur + 1) / total})`;
+}
+
+function go(dir) {
+  const next = cur + dir;
+  if (next < 0 || next >= total) return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(() => slides[cur].classList.remove('exit'), 300);
+  cur = next;
+  slides[cur].classList.add('active');
+  slides[cur].scrollTop = 0;
+  update();
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
+  if (e.key === 'f' || e.key === 'F') toggleFS();
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+// Fullscreen
+function toggleFS() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+update();
+</script>
+
+</body></html>
